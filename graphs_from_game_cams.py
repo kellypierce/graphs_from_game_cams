@@ -24,38 +24,14 @@ class TimeStamp():
 
     def __init__(self):
         pass
-    
-    def from_exif(self, photo_name):
-
-        '''
-        input: path to a photo
-        output: time stamp data for the photo
-        '''
-    
-        # check the EXIF data for the listed images
-        # TO DO:
-        #   what is the expected directory structure?
-        #   should images be grouped into folders (site, camera)?
-        #   should full file paths be specified in the input file?
         
-        # https://smarnach.github.io/pyexiftool/
-        
-        # alternatively, pandas:
-        # read file to pandas data frame
-        # extract the column of file names as a list
-        # check the existence of each file name in the list
-        #   return an error if any of the files do not exist
-        with exiftool.ExifTool() as et:
-            time_data = et.get_tag('EXIF:DateTimeOriginal', photo_name)
-        return time_data
-        
-    def from_exif_batch(self, photo_names):
+    def from_exif(self, photo_names):
 
         '''
         input: list of photo names
         output: list
         '''
-        
+        print len(photo_names)
         time_data_list = []
         with exiftool.ExifTool() as et:
             time_data_list.append(et.get_tag_batch('EXIF:DateTimeOriginal', photo_names))
@@ -66,44 +42,32 @@ class ProcessAnimalID():
     def __init__(self):
         pass
     
-    def read_id_file(self, photo_list):
+    def read_id_file(self, photo_list, out_file = None):
         '''
         input: csv, tsv or txt file
         output: none; calls other functions
         '''
-        if not checkfile(photo_list):
-            raise IOError("Input file does not exist: %s" % photo_list)
+        #if not checkfile(photo_list):
+        #    raise IOError("Input file does not exist: %s" % photo_list)
         
         # which is faster -- to read all the lines in the file, get a list of photo names, and batch-request the exif data?
         # or to read the file line by line and make a new call for the exif data every time?    
         # check that file is long enough to bother with (>1 line at minimum)
         first_line = True
+        ts = TimeStamp()
         with open(photo_list, 'r') as photos:
             for line in photos:
-            	if first_line:
-            		if not 
-            	if not
-                # read file line by line
-                # first line should contain header
-                # second line should be start of data
-                # first column should be the file name for the photo
-                # the second column should be the ID for the deer in that file
-                #   maybe would be good to allow multiple IDs in a single column so that the EXIF doesn't have to be read multiple times if there are several animals per picture
-                # file_path = line[0] # should be the first item in the list
-                # time_stamp = from_exif(file_path)
-                # write_line(time_tamp)
-                
-        
-        contains_time_stamp = time_stamp_file(data)
-        # return true if time stamp in file
-        # return false if time stamp needed from exif
-        
-        if contains_time_stamp:
-            return
-            
-        else:
-            from_exif(data)
-            return
+            	if not first_line:
+            		line = line.replace('\n','')
+            		line_list = line.split(',')
+            		file_path = line_list[0]
+            		#print line_list, len(line_list), file_path
+            		time_stamp = ts.from_exif([file_path])
+            		new_line = [line_list[0], line_list[1], time_stamp[0]]
+            		print new_line
+            		# write new line to new file
+            	else:
+            		first_line = False   
             
 class AnimalGraph():
 
@@ -200,16 +164,26 @@ if __name__ == '__main__':
     out_file = opts.output
     
     ########################
-    # test class timestamp #
+    # test class TimeStamp #
     ########################
     
     ## in_file = one photo
     #ts = TimeStamp()
     #print ts.from_exif(in_file)
     
-    ## in_file = tab separated data file with photo paths and animal IDs
-    ts = TimeStamp()
-    print 
+    ## in_file = two photo names as a string; comma-separated
+    ## tests batch functionality of pyexif
+    #in_files = in_file.split(',')
+    #ts = TimeStamp()
+    #print ts.from_exif(in_files
+    
+    ##############################
+    # test class ProcessAnimalID #
+    ##############################
+    
+    ## in_file = spreadsheet
+    pid = ProcessAnimalID()
+    pid.read_id_file(in_file)
     
     #ag = AnimalGraph()
     #ag.generate_graph(in_file, window)
