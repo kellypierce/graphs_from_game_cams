@@ -207,7 +207,6 @@ class AnimalGraph(object):
         return site_dataframes      
 
     def generate_graph(self):
-        pass
         '''
         input: data frame containing animal IDs and times; window size
         output: edge list
