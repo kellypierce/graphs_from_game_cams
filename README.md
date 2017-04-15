@@ -7,7 +7,9 @@ Python modules for generating animal social networks using game camera data.
 1. [exiftool](http://www.sno.phy.queensu.ca/~phil/exiftool/)
 2. [Python 2.7.5](https://www.python.org/download/releases/2.7.5/) (should work with Python 2.7.x)
 3. Python modules
+
 	a. [pandas](http://pandas.pydata.org/)
+	
 	b. [pyexif](https://smarnach.github.io/pyexiftool/)
 
 ## Installation
