@@ -9,7 +9,6 @@ from string import Template
 import check_inputs as ch    
     
 # TODO: parallelize?
-# TODO: check pd.date_range -- are units other than hours supported??
 def time_slice(site_partitions, window, units):
     '''
     site_partitions: data for all times for a single site/camera
@@ -18,16 +17,21 @@ def time_slice(site_partitions, window, units):
     time_slices = []
     window = int(window)
     if window > 1:
-        pd_freq = window + units
+        pd_freq = str(window) + units
     else:
         pd_freq = units
-    
+        
     for site_data in site_partitions:
         start_time = min(site_data.Time)
         max_time = max(site_data.Time)
         #print start_time, max_time
         t = start_time
-        slices = pd.date_range(start = start_time, end = pd.to_datetime(max_time) + pd.DateOffset(hours = window), freq = pd_freq)
+        if units == 'H':
+        	slices = pd.date_range(start = start_time, end = pd.to_datetime(max_time) + pd.DateOffset(hours = window), freq = pd_freq)
+        elif units == 'D':
+            slices = pd.date_range(start = start_time, end = pd.to_datetime(max_time) + pd.DateOffset(days = window), freq = pd_freq)
+        elif units == 'T':
+            slices = pd.date_range(start = start_time, end = pd.to_datetime(max_time) + pd.DateOffset(minutes = window), freq = pd_freq)
         for time_idx in range(1,len(slices)):
             #print slices[time_idx]
             time_slice = site_data[(pd.to_datetime(site_data.Time) >= pd.to_datetime(slices[time_idx-1])) & (pd.to_datetime(site_data.Time) < pd.to_datetime(slices[time_idx]))]
@@ -133,8 +137,8 @@ if __name__ == '__main__':
     
     import argparse
     
-    parser = argparse.ArgumentParser(description = 'Game camera photo data management for contact network generation')
-    parser.add_argument('-f', '--file', help = 'CSV file containing paths to photos and animal IDs')
+    parser = argparse.ArgumentParser(description = 'Graph generation from time stamp and animal ID data.')
+    parser.add_argument('-f', '--file', help = 'CSV file containing animal IDs and time stamps (may be output of get_timestamps.py)')
     parser.add_argument('-w', '--window', help = 'Window size for aggregating temporal data')
     parser.add_argument('-u', '--units', help = 'Units for window size, if not hours. Acceptable entries are T (minutes), H (hours), and D (days)')
     parser.add_argument('-og', '--output_graph', help = 'Path for writing output graph image', default = None)
@@ -153,8 +157,8 @@ if __name__ == '__main__':
         ch.check_outputs_exist(out_graph)
         ch.check_file_type(out_graph, ('.png', '.PNG', '.pdf', '.PDF'))
     
-    ##########################
-    # test class AnimalGraph #
-    ##########################
+    ##################
+    # execute script #
+    ##################
     
     generate_graph(in_file, int(window), units, out_graph)
